@@ -225,6 +225,27 @@ nav ul a:hover { color: var(--accent); }
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
+
+
+.hero-socials {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+  align-items: center;
+}
+
+.hero-socials a {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  transition: color 0.2s;
+}
+
+.hero-socials a:hover { color: var(--accent); }
+.hero-socials svg { width: 18px; height: 18px; }
+
 .btn-primary:hover {
   transform: translateY(-2px);
   box-shadow: 0 8px 30px rgba(0, 229, 160, 0.3);
@@ -516,6 +537,7 @@ footer {
   opacity: 1;
   transform: translateY(0);
 }
+
 
 /* ============================================
    RESPONSIVE

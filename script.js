@@ -4,31 +4,34 @@
 const canvas = document.getElementById('dna-canvas');
 const ctx = canvas.getContext('2d');
 
-function resizeCanvas() {
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
 const bases = ['A', 'T', 'G', 'C'];
 const strands = [];
 const STRAND_COUNT = 8;
 
-for (let i = 0; i < STRAND_COUNT; i++) {
-  strands.push({
-    x: (canvas.width / STRAND_COUNT) * i + 60,
-    offset: Math.random() * Math.PI * 2,
-    speed: 0.002 + Math.random() * 0.002,
-    amplitude: 30 + Math.random() * 40,
-  });
+function initStrands() {
+  strands.length = 0;
+  for (let i = 0; i < STRAND_COUNT; i++) {
+    strands.push({
+      x: (canvas.width / STRAND_COUNT) * i + (canvas.width / STRAND_COUNT / 2),
+      offset: Math.random() * Math.PI * 2,
+      speed: 0.002 + Math.random() * 0.002,
+      amplitude: 30 + Math.random() * 40,
+    });
+  }
 }
+
+function resizeCanvas() {
+  canvas.width = canvas.offsetWidth;
+  canvas.height = canvas.offsetHeight;
+  initStrands();
+}
+
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
 
 let tick = 0;
 
 function drawDNA() {
-  canvas.width = canvas.offsetWidth;
-  canvas.height = canvas.offsetHeight;
   ctx.clearRect(0, 0, canvas.width, canvas.height);
 
   const STEP = 28;
@@ -41,7 +44,6 @@ function drawDNA() {
       const x1 = strand.x + wave;
       const x2 = strand.x - wave;
 
-      // Backbone links
       ctx.beginPath();
       ctx.moveTo(x1, y);
       ctx.lineTo(x2, y);
@@ -49,7 +51,6 @@ function drawDNA() {
       ctx.lineWidth = 1;
       ctx.stroke();
 
-      // Knooppunten
       ctx.beginPath();
       ctx.arc(x1, y, 3, 0, Math.PI * 2);
       ctx.fillStyle = 'rgba(0, 180, 255, 0.6)';
@@ -60,7 +61,6 @@ function drawDNA() {
       ctx.fillStyle = 'rgba(0, 229, 160, 0.6)';
       ctx.fill();
 
-      // Letters
       if (row % 3 === 0) {
         const base = bases[Math.floor((row + strand.x) % 4)];
         ctx.font = '9px Space Mono, monospace';
@@ -75,7 +75,6 @@ function drawDNA() {
 }
 
 drawDNA();
-
 
 /* ============================================
    SCROLL REVEAL
