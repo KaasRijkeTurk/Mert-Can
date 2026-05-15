@@ -6,16 +6,25 @@ const ctx = canvas.getContext('2d');
 
 const bases = ['A', 'T', 'G', 'C'];
 const strands = [];
-const STRAND_COUNT = 8;
+
+// Fewer strands on mobile for performance
+const isMobile = () => window.innerWidth <= 768;
+const STRAND_COUNT_DESKTOP = 8;
+const STRAND_COUNT_MOBILE = 4;
+
+function getStrandCount() {
+  return isMobile() ? STRAND_COUNT_MOBILE : STRAND_COUNT_DESKTOP;
+}
 
 function initStrands() {
+  const count = getStrandCount();
   strands.length = 0;
-  for (let i = 0; i < STRAND_COUNT; i++) {
+  for (let i = 0; i < count; i++) {
     strands.push({
-      x: (canvas.width / STRAND_COUNT) * i + (canvas.width / STRAND_COUNT / 2),
+      x: (canvas.width / count) * i + (canvas.width / count / 2),
       offset: Math.random() * Math.PI * 2,
       speed: 0.002 + Math.random() * 0.002,
-      amplitude: 30 + Math.random() * 40,
+      amplitude: isMobile() ? 20 + Math.random() * 25 : 30 + Math.random() * 40,
     });
   }
 }
@@ -27,9 +36,24 @@ function resizeCanvas() {
 }
 
 resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
+
+let resizeTimer;
+window.addEventListener('resize', () => {
+  clearTimeout(resizeTimer);
+  resizeTimer = setTimeout(resizeCanvas, 150);
+});
 
 let tick = 0;
+let animFrameId;
+
+// Pause animation when tab is hidden (saves battery on mobile)
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden) {
+    cancelAnimationFrame(animFrameId);
+  } else {
+    drawDNA();
+  }
+});
 
 function drawDNA() {
   ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -61,7 +85,8 @@ function drawDNA() {
       ctx.fillStyle = 'rgba(0, 229, 160, 0.6)';
       ctx.fill();
 
-      if (row % 3 === 0) {
+      // Skip letter labels on mobile for performance
+      if (!isMobile() && row % 3 === 0) {
         const base = bases[Math.floor((row + strand.x) % 4)];
         ctx.font = '9px Space Mono, monospace';
         ctx.fillStyle = 'rgba(0, 229, 160, 0.4)';
@@ -71,10 +96,42 @@ function drawDNA() {
   });
 
   tick++;
-  requestAnimationFrame(drawDNA);
+  animFrameId = requestAnimationFrame(drawDNA);
 }
 
 drawDNA();
+
+/* ============================================
+   HAMBURGER / MOBILE NAV
+   ============================================ */
+const hamburger = document.querySelector('.hamburger');
+const mobileNav = document.querySelector('.mobile-nav');
+const mobileNavLinks = document.querySelectorAll('.mobile-nav a');
+
+if (hamburger && mobileNav) {
+  hamburger.addEventListener('click', () => {
+    const isOpen = hamburger.classList.toggle('open');
+    mobileNav.classList.toggle('open', isOpen);
+    document.body.style.overflow = isOpen ? 'hidden' : '';
+  });
+
+  mobileNavLinks.forEach(link => {
+    link.addEventListener('click', () => {
+      hamburger.classList.remove('open');
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    });
+  });
+
+  // Close on backdrop tap
+  mobileNav.addEventListener('click', (e) => {
+    if (e.target === mobileNav) {
+      hamburger.classList.remove('open');
+      mobileNav.classList.remove('open');
+      document.body.style.overflow = '';
+    }
+  });
+}
 
 /* ============================================
    SCROLL REVEAL
@@ -83,21 +140,27 @@ const revealEls = document.querySelectorAll(
   'section > *, .project-card, .stat-card, .skill-group'
 );
 
-revealEls.forEach(el => el.classList.add('reveal'));
+// Skip reveal animation if user prefers reduced motion
+const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-const observer = new IntersectionObserver((entries) => {
-  entries.forEach((entry, i) => {
-    if (entry.isIntersecting) {
-      setTimeout(() => {
-        entry.target.classList.add('visible');
-      }, i * 60);
-      observer.unobserve(entry.target);
-    }
-  });
-}, { threshold: 0.1 });
+if (!prefersReduced) {
+  revealEls.forEach(el => el.classList.add('reveal'));
 
-revealEls.forEach(el => observer.observe(el));
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach((entry, i) => {
+      if (entry.isIntersecting) {
+        setTimeout(() => {
+          entry.target.classList.add('visible');
+        }, i * 60);
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 }); // slightly lower threshold for mobile viewports
 
+  revealEls.forEach(el => observer.observe(el));
+} else {
+  revealEls.forEach(el => el.classList.add('reveal', 'visible'));
+}
 
 /* ============================================
    ACTIVE NAV LINK
@@ -117,4 +180,4 @@ window.addEventListener('scroll', () => {
       ? 'var(--accent)'
       : '';
   });
-});
+}, { passive: true }); // passive for scroll performance on mobile

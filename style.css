@@ -129,6 +129,61 @@ nav ul a {
 }
 
 nav ul a:hover { color: var(--accent); }
+
+/* ============================================
+   HAMBURGER MENU (mobile)
+   ============================================ */
+.hamburger {
+  display: none;
+  flex-direction: column;
+  gap: 5px;
+  cursor: pointer;
+  padding: 4px;
+  background: none;
+  border: none;
+  z-index: 200;
+}
+
+.hamburger span {
+  display: block;
+  width: 22px;
+  height: 2px;
+  background: var(--text);
+  border-radius: 2px;
+  transition: transform 0.3s, opacity 0.3s, background 0.2s;
+}
+
+.hamburger.open span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--accent); }
+.hamburger.open span:nth-child(2) { opacity: 0; }
+.hamburger.open span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--accent); }
+
+/* Mobile nav overlay */
+.mobile-nav {
+  display: none;
+  position: fixed;
+  inset: 0;
+  background: rgba(10, 12, 15, 0.97);
+  backdrop-filter: blur(16px);
+  z-index: 150;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2.5rem;
+}
+
+.mobile-nav.open { display: flex; }
+
+.mobile-nav a {
+  font-family: var(--font-display);
+  font-size: 2rem;
+  font-weight: 800;
+  color: var(--text-muted);
+  letter-spacing: -0.02em;
+  transition: color 0.2s;
+}
+
+.mobile-nav a:hover { color: var(--accent); }
+
 /* ============================================
    HERO
    ============================================ */
@@ -172,7 +227,7 @@ nav ul a:hover { color: var(--accent); }
 .hero-content h1 {
   font-family: var(--font-display);
   font-weight: 800;
-  font-size: clamp(3.5rem, 8vw, 7rem);
+  font-size: clamp(2.5rem, 8vw, 7rem);
   line-height: 0.95;
   letter-spacing: -0.03em;
   color: #fff;
@@ -225,13 +280,12 @@ nav ul a:hover { color: var(--accent); }
   transition: transform 0.2s, box-shadow 0.2s;
 }
 
-
-
 .hero-socials {
   display: flex;
   gap: 1.5rem;
   margin-top: 1.5rem;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .hero-socials a {
@@ -389,6 +443,7 @@ section h2 {
   gap: 1.5rem;
   max-width: 1000px;
 }
+
 .wip-badge {
   font-size: 0.6rem;
   font-weight: 700;
@@ -434,7 +489,6 @@ section h2 {
 .project-links a {
   color: var(--text-muted);
   transition: color 0.2s;
-  
 }
 .project-links a:hover { color: var(--accent); }
 .project-links svg { width: 20px; height: 20px; }
@@ -491,6 +545,7 @@ section h2 {
   justify-content: center;
   gap: 2rem;
   margin-top: 2rem;
+  flex-wrap: wrap;
 }
 
 .contact-links a {
@@ -538,26 +593,199 @@ footer {
   transform: translateY(0);
 }
 
-
-/* ============================================
-   RESPONSIVE
-   ============================================ */
-@media (max-width: 768px) {
-  nav { padding: 1rem 1.5rem; }
-  nav ul { gap: 1.2rem; }
-  nav ul a { font-size: 0.7rem; }
-
-  section { padding: 5rem 1.5rem; }
-  #hero { padding: 0 1.5rem; }
-  .scroll-hint { left: 1.5rem; }
-
-  .over-grid { grid-template-columns: 1fr; gap: 2rem; }
-  .skills-grid { grid-template-columns: 1fr 1fr; }
-
-  .hero-buttons { flex-direction: column; }
+/* Reduce motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+  .reveal { opacity: 1; transform: none; }
+  .hero-label, .hero-content h1, .hero-sub, .hero-buttons { opacity: 1; }
 }
 
+/* ============================================
+   SCROLL MARGIN — stop fixed nav from covering sections
+   ============================================ */
+section[id] {
+  scroll-margin-top: 80px;
+}
+
+/* ============================================
+   RESPONSIVE — TABLET (max 900px)
+   ============================================ */
+@media (max-width: 900px) {
+  nav { padding: 1rem 2rem; }
+  section { padding: 5rem 2rem; }
+  #hero { padding: 90px 2rem 3rem; }
+  .scroll-hint { left: 2rem; }
+  .over-grid { gap: 2.5rem; }
+  .skills-grid { grid-template-columns: repeat(2, 1fr); }
+  footer { padding: 2rem; }
+}
+
+/* ============================================
+   RESPONSIVE — MOBILE (max 768px)
+   ============================================ */
+@media (max-width: 768px) {
+
+  /* ── NAV ── */
+  nav {
+    padding: 0.6rem 1rem;
+  }
+
+  /* Shrink the [Mcan] logo so it fits */
+  .logo-bracket { font-size: 2rem; margin: 0 -0.35rem; }
+  .logo-block   { height: 2rem; }
+  .logo-big     { font-size: 1.5rem; }
+  .logo-bottom  { font-size: 0.7rem; }
+  .nav-tagline  { font-size: 0.27rem; margin-top: 0.2rem; }
+
+  /* Hide desktop links, show hamburger */
+  nav > ul    { display: none; }
+  .hamburger  { display: flex; }
+
+  /* ── HERO ── */
+  /* align-items: flex-start so tall content doesn't get clipped at top */
+  #hero {
+    padding: 80px 1.25rem 4rem;
+    min-height: 100svh;
+    align-items: flex-start;
+  }
+
+  /* Canvas stays fully inside hero, not bleeding out */
+  .dna-bg {
+    opacity: 0.07;
+    overflow: hidden;
+  }
+
+  .hero-content {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .hero-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.1em;
+    margin-bottom: 0.8rem;
+    white-space: normal;
+  }
+
+  /* The name — truly fluid so it never clips */
+  .hero-content h1 {
+    font-size: clamp(1.6rem, 8.5vw, 3.5rem);
+    line-height: 1.08;
+    margin-bottom: 1rem;
+    overflow-wrap: anywhere;   /* break the scrambled surname if needed */
+    word-break: break-word;
+    max-width: 100%;
+  }
+
+  .hero-sub {
+    font-size: 0.82rem;
+    margin-bottom: 1.5rem;
+    max-width: 100%;
+  }
+
+  /* Buttons stack full-width */
+  .hero-buttons {
+    flex-direction: column;
+    gap: 0.65rem;
+    width: 100%;
+  }
+
+  .btn-primary,
+  .btn-ghost {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+    padding: 0.8rem 1.2rem;
+    font-size: 0.78rem;
+    box-sizing: border-box;
+  }
+
+  /* Socials — small icon boxes that wrap naturally */
+  .hero-socials {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    max-width: 100%;
+  }
+
+  .hero-socials a {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    background: var(--surface);
+    padding: 0;
+  }
+
+  /* Hide text labels */
+  .hero-socials a span { display: none; }
+
+  /* Normalise ALL svgs inside socials — including the oversized Fiverr one */
+  .hero-socials svg,
+  .hero-socials a svg {
+    width: 18px !important;
+    height: 18px !important;
+    position: static !important;
+    top: auto !important;
+  }
+
+  .scroll-hint { left: 1.25rem; bottom: 1rem; }
+
+  /* ── SECTIONS ── */
+  section { padding: 3.5rem 1.25rem; }
+
+  section h2 {
+    font-size: clamp(1.6rem, 7vw, 2.5rem);
+    margin-bottom: 1.5rem;
+  }
+
+  /* Over mij */
+  .over-grid {
+    grid-template-columns: 1fr;
+    gap: 1.8rem;
+  }
+
+  .stat-num   { font-size: 1.1rem; }
+  .stat-label { font-size: 0.7rem; }
+
+  /* Skills */
+  .skills-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 1.25rem;
+  }
+
+  /* Projecten */
+  .projects-grid { grid-template-columns: 1fr; }
+  .project-card  { padding: 1.2rem; }
+
+  /* Contact */
+  .contact-links {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+
+  footer { padding: 1.5rem 1.25rem; }
+}
+
+/* ============================================
+   RESPONSIVE — SMALL MOBILE (max 480px)
+   ============================================ */
 @media (max-width: 480px) {
   .skills-grid { grid-template-columns: 1fr; }
-  nav ul { display: none; }
+
+  .hero-content h1 {
+    font-size: clamp(1.4rem, 8vw, 2rem);
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+
+  .contact-links a { font-size: 0.7rem; }
 }
